@@ -1,0 +1,156 @@
+// FILE android/app/Instrumentation.java
+package android.app;
+import android.content.Context;
+public class Instrumentation  {
+    public final Context context=new Context();
+    public int mainCalls;
+    public boolean diagnosticsActive;
+    public int diagnosticInstalls;
+    public int diagnosticCleanups;
+    public int initializations;
+    public boolean installedBeforeInitialize;
+    public Context getTargetContext() {
+        return context;
+    }
+    public void runOnMainSync(Runnable r) {
+        mainCalls++;
+        r.run();
+    }
+}
+
+// FILE android/content/Context.java
+package android.content;
+public class Context  {
+    public String getPackageName() {
+        return "com.example";
+    }
+}
+
+// FILE android/util/Log.java
+package android.util;
+import java.util.ArrayList;
+import java.util.List;
+public class Log  {
+    public static final List<String> messages=new ArrayList<>();
+    public static int i(String tag,String message) {
+        messages.add(tag+":"+message);
+        return 0;
+    }
+    public static int w(String tag,String message) {
+        return i(tag,message);
+    }
+}
+
+// FILE androidx/test/platform/app/InstrumentationRegistry.java
+package androidx.test.platform.app;
+import android.app.Instrumentation;
+public class InstrumentationRegistry  {
+    public static Instrumentation instrumentation;
+    public static Instrumentation getInstrumentation() {
+        return instrumentation;
+    }
+}
+
+// FILE androidx/test/uiautomator/UiDevice.java
+package androidx.test.uiautomator;
+import android.app.Instrumentation;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import pl.leancode.patrol.PatrolJUnitRunner;
+public class UiDevice  {
+    public static final List<String> commands=new ArrayList<>();
+    private final PatrolJUnitRunner runner;
+    private UiDevice(PatrolJUnitRunner runner)  {
+        this.runner = runner;
+    }
+    public static UiDevice getInstance(Instrumentation instrumentation)  {
+        return new UiDevice((PatrolJUnitRunner) instrumentation);
+    }
+    public String executeShellCommand(String command) throws IOException  {
+        commands.add(command+"|initializations="+runner.initializations+"|setups="+runner.setups);
+        if (runner.failure.equals("grant")) throw new IOException("grant");
+        return "";
+    }
+}
+
+// FILE pl/leancode/patrol/Automator.java
+package pl.leancode.patrol;
+import androidx.test.platform.app.InstrumentationRegistry;
+public class Automator {
+    public static final Companion Companion = new Companion();
+    public static class Companion {
+        public Automator getInstance() { return new Automator(); }
+    }
+    public void initialize() {
+        PatrolJUnitRunner runner =
+                (PatrolJUnitRunner) InstrumentationRegistry.getInstrumentation();
+        runner.initializations++;
+        runner.installedBeforeInitialize = runner.diagnosticsActive;
+        if (runner.failure.equals("initialize")) throw new IllegalStateException("initialize");
+    }
+}
+
+// FILE pl/leancode/patrol/PatrolJUnitRunner.java
+package pl.leancode.patrol;
+import android.app.Instrumentation;
+public class PatrolJUnitRunner extends Instrumentation  {
+    public String failure = "";
+    public int calls;
+    public boolean installedBeforeSetup;
+    public int setups;
+    private void stage(String name)  {
+        if (failure.equals(name)) throw new IllegalStateException(name);
+    }
+    public void setUp(Class<?> activity)  {
+        setups++;
+        installedBeforeSetup = diagnosticsActive;
+        stage("setup");
+    }
+    public void waitForPatrolAppService()  {
+        stage("wait");
+    }
+    public Object[] listDartTests()  {
+        stage("list");
+        return failure.equals("match") ? new Object[0] : new Object[] {
+            "observer_test probe"
+        }
+        ;
+    }
+    public void runDartTest(String description)  {
+        calls++;
+        stage("run");
+    }
+}
+
+// FILE mplatrol/e2e/NativeActivityDiagnostics.java
+package mplatrol.e2e;
+import android.app.Instrumentation;
+public final class NativeActivityDiagnostics  {
+    public static int installs;
+    public static int cleanups;
+    public static Runnable install(Instrumentation instrumentation)  {
+        installs++;
+        instrumentation.diagnosticInstalls++;
+        instrumentation.diagnosticsActive = true;
+        return () ->  {
+            cleanups++;
+            instrumentation.diagnosticCleanups++;
+            instrumentation.diagnosticsActive = false;
+        }
+        ;
+    }
+}
+
+// FILE com/example/MainActivity.java
+package com.example;
+public final class MainActivity  {
+}
+
+// FILE org/junit/Assert.java
+package org.junit;
+public final class Assert  {
+    public static void assertTrue(String message, boolean condition)  {
+        if (!condition) throw new AssertionError(message);
+    }
+}

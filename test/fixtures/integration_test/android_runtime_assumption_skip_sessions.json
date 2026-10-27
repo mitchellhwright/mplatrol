@@ -1,0 +1,15 @@
+{
+  "status": "success",
+  "data": [
+    {
+      "sessionID": "RMAA-AND-1913856-1790755176845516515SLC",
+      "taskID": "HYPL-1913856-1790755157819689525BOC",
+      "scenario_name": "mplatrol.e2e.CardhubUserJourneyTest/opens_a_card_and_its_Alerts_and_Controls_through_CardHub",
+      "status": "passed"
+    }
+  ],
+  "metadata": {
+    "total": 1,
+    "hasmore": false
+  }
+}

@@ -1,0 +1,3 @@
+# Several suites bind local ports and check they are released; running suites one at a time keeps another
+# suite from taking a just-freed port.
+concurrency: 1

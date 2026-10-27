@@ -1,0 +1,17 @@
+# Dart / Flutter
+.dart_tool/
+.packages
+build/
+coverage/
+.flutter-plugins
+.flutter-plugins-dependencies
+packages/mplatrol_harness/pubspec.lock
+
+# mplatrol working state in an app checkout (credentials, caches, reports)
+.mplatrol/
+
+# Editors and OS
+.idea/
+.vscode/
+*.iml
+.DS_Store

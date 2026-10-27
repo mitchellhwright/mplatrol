@@ -1,0 +1,64 @@
+# mplatrol.yaml: place it at the root of the Flutter app under test. Every key is optional.
+
+app:
+  # The Flutter app root, relative to this file (default: the nearest folder with pubspec.yaml and patrol_test/).
+  path: .
+
+prepare:
+  # Runs before each tenant's builds, through /bin/sh -c in the app folder, with MPLATROL_TENANT,
+  # MPLATROL_ENVIRONMENT and MPLATROL_PLATFORMS set. Use it to select a white-label flavor, write config, etc.
+  command: ./tool/configure_tenant.sh "$MPLATROL_TENANT"
+  # Resolve `patrol` to mplatrol's patched private copy (see README, "Patched Patrol").
+  patch-patrol: true
+
+# The tenant (white-label flavor) and backend environment runs use by default.
+tenant: default
+environment: staging
+
+# The Patrol test file `mplatrol build` compiles (`mplatrol run` runs every test unless --target is given).
+target: patrol_test/app_test.dart
+
+lambdatest:
+  # Reuse a named tunnel; omit to let LambdaTest generate one.
+  # tunnel-name: my-tunnel
+  # Device specs ("Name-OSVersion"); a spec may be a |-separated pool the job picks a free device from.
+  android-devices: ['Pixel 8-14|Galaxy S24-14']
+  ios-devices: ['iPhone 15-17|iPhone 16-18']
+  android-max-parallel: 5
+  ios-max-parallel: 5
+  # Per-test idle timeout in seconds.
+  idle-timeout: 360
+  # Build secrets a LambdaTest build needs besides LT_USERNAME/LT_ACCESS_KEY (checked before a run starts).
+  required-env: []
+
+credentials:
+  # env: MPLATROL_CRED_USERNAME / _PASSWORD / _OTP, then MPLATROL_CRED_2_USERNAME, ... for more users.
+  # file: a JSON file (keep it out of version control), see README.
+  provider: env
+  prefix: MPLATROL_CRED_
+  # file: .mplatrol/credentials.json
+
+coverage:
+  # Package-name regex `mplatrol run --coverage` keeps (default: the app's own package).
+  # packages: ^(my_app|my_shared_.+)$
+
+network:
+  # Domains a physical iPhone sends through this machine (empty: every host).
+  proxied-domains: ['.example.com']
+  probe-url: https://www.example.com/
+
+lessons:
+  # Project failure lessons, matched after the built-in ones (see README, "Failure lessons").
+  - name: paymentsSandboxDown
+    category: env-failure
+    pattern: 'payments sandbox returned 50\d'
+    symptom: The payments sandbox answers HTTP 5xx
+    remedy: The sandbox is down; rerun when its status page is green.
+
+reporting:
+  # Written after every run, besides the default JUnit file and summary.json under .mplatrol/reports/.
+  sinks:
+    - type: junit
+      path: build/mplatrol/junit.xml
+    - type: json
+      path: build/mplatrol/results.json

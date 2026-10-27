@@ -1,0 +1,22 @@
+include: package:lints/recommended.yaml
+
+analyzer:
+  exclude:
+    - packages/**
+  errors:
+    todo: ignore
+
+linter:
+  rules:
+    - always_use_package_imports
+    - avoid_print
+    - avoid_relative_lib_imports
+    - cancel_subscriptions
+    - close_sinks
+    - directives_ordering
+    - prefer_final_locals
+    - unawaited_futures
+    - unnecessary_await_in_return
+
+formatter:
+  page_width: 120

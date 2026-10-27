@@ -1,0 +1,54 @@
+import 'dart:async';
+
+// Transport DTOs, discovery and logging are boundaries; completion bodies below are actual Patrol.
+enum RunDartTestResponseResult { success, skipped, failure }
+enum TestEntryStatus { success, skip, failure }
+class RunDartTestRequest {
+  RunDartTestRequest(this.name);
+  final String name;
+}
+class RunDartTestResponse {
+  RunDartTestResponse({required this.result, this.details});
+  final RunDartTestResponseResult result;
+  final String? details;
+}
+class TestEntry {
+  TestEntry({required this.name, required this.status});
+  final String name;
+  final TestEntryStatus status;
+}
+class ErrorEntry { ErrorEntry({required String message}); }
+class PatrolLog {
+  final entries = <Object>[];
+  void log(Object entry) => entries.add(entry);
+}
+class DiscoveredTest { final skip = false; }
+// ACTUAL_RESULT_CLASS
+class PatrolAppService {
+  final _testExecutionRequested = Completer<String>();
+  final _testExecutionCompleted = Completer<_TestExecutionResult>();
+  final _patrolLog = PatrolLog();
+  Future<String> get testExecutionRequested => _testExecutionRequested.future;
+  Future<_TestExecutionResult> get testExecutionCompleted => _testExecutionCompleted.future;
+  DiscoveredTest _findTest(String name) => DiscoveredTest();
+// ACTUAL_COMPLETION_METHOD
+// ACTUAL_RUN_METHOD
+}
+Future<void> main() async {
+  final actual = <String>[];
+  for (final flags in [(true, false), (true, true), (false, false), (false, true)]) {
+    final service = PatrolAppService();
+    final pending = service.runDartTest(RunDartTestRequest('existing journey'));
+    await service.markDartTestAsCompleted(
+      dartFileName: 'existing journey', passed: flags.$1, skipped: flags.$2, details: null);
+    final response = await pending;
+    actual.add(response.result.name);
+    final entry = service._patrolLog.entries.whereType<TestEntry>().single;
+    final expected = flags.$1 ? (flags.$2 ? TestEntryStatus.skip : TestEntryStatus.success)
+        : TestEntryStatus.failure;
+    if (entry.status != expected) throw StateError('Incorrect Patrol log verdict');
+  }
+  final result = actual.join(' ');
+  if (result != 'success skipped failure failure') throw StateError(result);
+  print('VERDICTS $result');
+}

@@ -1,0 +1,21 @@
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Dart test failed: mplatrol_filtered_test account_details_journey_test PROJ-TC-7651 Account Details uses the prepared header and white detail fields
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞═════════════════
+The following TimeoutException was thrown running a test:
+STEP account_detail_fields: not reached within 0:00:30.000000;
+screen shows [Nickname, Overdraft Coverage Level, Ledger Balance]
+
+When the exception was thrown, this was the stack:
+#0      pumpUntil (file:///app/patrol_test/support/journey_waits.dart:25:7)
+<asynchronous suspension>
+#1      AccountsJourneyPage.showDetailFields (file:///app/patrol_test/pages/accounts_journey_page.dart:420:5)
+<asynchronous suspension>
+#2      main.<anonymous closure> (file:///app/patrol_test/account_details_journey_test.dart:42:7)
+<asynchronous suspension>
+#3      patrolTest.<anonymous closure> (package:patrol/src/common.dart:194:9)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      PatrolBinding._wrapTestBodyWithExceptionGatherer (package:patrol/src/binding.dart:410:5)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>

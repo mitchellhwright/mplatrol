@@ -1,0 +1,20 @@
+name: mplatrol_harness
+description: >-
+  In-app side of the mplatrol Patrol E2E orchestrator: runtime credentials, sign-in slots,
+  skip markers and native-automation helpers for Patrol journeys.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_test:
+    sdk: flutter
+  patrol: 4.10.0
+
+dev_dependencies:
+  lints: 6.1.0

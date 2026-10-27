@@ -1,0 +1,113 @@
+import 'dart:async';
+
+// test_api's live test is the boundary; the global_state getters and the binding's completion
+// arguments below are the actual patched Patrol source.
+enum Result {
+  success,
+  skipped,
+  failure,
+  error;
+
+  bool get isPassing => this == success || this == skipped;
+}
+
+class State {
+  State(this.result);
+  final Result result;
+}
+
+enum MessageType { print, skip }
+
+class Message {
+  Message(this.type, this.text);
+  final MessageType type;
+  final String text;
+}
+
+class AsyncError {
+  AsyncError(this.error, [this.stackTrace = StackTrace.empty]);
+  final Object error;
+  final StackTrace stackTrace;
+}
+
+/// flutter_test records a widget test's failure as one of these; its toString() names only the type.
+class FlutterErrorDetails {
+  FlutterErrorDetails({required this.exception, this.stack});
+  final Object exception;
+  final StackTrace? stack;
+  String exceptionAsString() => '$exception';
+}
+
+class LiveTest {
+  var state = State(Result.success);
+  final errors = <AsyncError>[];
+  final _messages = StreamController<Message>.broadcast(sync: true);
+  Stream<Message> get onMessage => _messages.stream;
+
+  void skip(String reason) {
+    _messages.add(Message(MessageType.skip, reason));
+    state = State(Result.skipped);
+  }
+
+  void fail(Object error, [StackTrace stackTrace = StackTrace.empty]) {
+    errors.add(AsyncError(error, stackTrace));
+    state = State(Result.error);
+  }
+}
+
+class Invoker {
+  static Invoker? current;
+  final liveTest = LiveTest();
+}
+
+class Failure {
+  Failure(this.details);
+  final String? details;
+}
+
+bool get isCurrentTestPassing => Invoker.current!.liveTest.state.result.isPassing;
+
+// ACTUAL_GLOBAL_STATE
+
+final _testResults = <String, Object>{};
+const String? _currentDartTest = 'journey';
+
+String _report() {
+  final passed = isCurrentTestPassing;
+  final sent = (
+// ACTUAL_COMPLETION_ARGUMENTS
+  );
+  return 'passed=${sent.passed} skipped=${sent.skipped} details=${sent.details}';
+}
+
+String _scenario(void Function(LiveTest test) steps) {
+  Invoker.current = Invoker();
+  _testResults.clear();
+  watchCurrentTestSkipReason();
+  steps(Invoker.current!.liveTest);
+  return _report();
+}
+
+void main() {
+  print(_scenario((_) {}));
+  print(_scenario((test) => test.skip('TEST_DATA_X needs another user')));
+  print(_scenario((test) => test
+    ..skip('TEST_DATA_X needs another user')
+    ..fail(StateError('late app error\nstack line'))));
+  print(_scenario((test) {
+    test.skip('TEST_DATA_X needs another user');
+    _testResults['journey'] = Failure('pending FlutterError');
+  }));
+  print(_scenario((test) => test
+    ..fail('boom')
+    ..skip('TEST_DATA_X needs another user')));
+  print(_scenario((test) => test.fail('boom')));
+  print(_scenario((test) {
+    test.fail('boom');
+    _testResults['journey'] = Failure('Expected: true');
+  }));
+  print(_scenario((test) => test.fail(FlutterErrorDetails(
+      exception: 'Expected: true\n  Actual: <false>\nlogin page chain: AUTHERR:ChallengeStatus_LockedOut',
+      stack: StackTrace.fromString('#0      fail (expect.dart:187)\n#1      _expect (expect.dart:182)\n\n#2      x')))));
+  print(_scenario((test) => test.fail(StateError('late'), StackTrace.fromString('#0      main (main.dart:1)'))));
+}
