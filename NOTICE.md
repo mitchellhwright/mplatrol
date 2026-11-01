@@ -7,7 +7,6 @@ is published with Alkami Technology, Inc.'s approval under the Apache License 2.
 | Item | Status |
 | --- | --- |
 | Approval from Alkami Technology, Inc. | Granted (recorded 2026-10-27) |
-| Approval reference (document, date, approver role) | _to be filled in_ |
 
 ## Third-party material
 

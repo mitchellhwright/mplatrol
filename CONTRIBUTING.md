@@ -1,7 +1,6 @@
 # Contributing to mplatrol
 
-Thanks for helping. This repository is not public yet (see [NOTICE.md](NOTICE.md)); these notes apply to everyone
-with access now and to outside contributors once it is published.
+Thanks for helping. These notes apply to everyone contributing to mplatrol.
 
 ## Setup
 
