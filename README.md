@@ -1,8 +1,5 @@
 # mplatrol
 
-> **Not for publication yet.** See [NOTICE.md](NOTICE.md): this code may only be published once the written
-> approval recorded there is granted.
-
 `mplatrol` runs a Flutter app's [Patrol](https://patrol.leancode.co) end-to-end suite on local Android
 emulators, iOS simulators and connected phones, and on LambdaTest real devices through HyperExecute, then tells
 you what failed and why.
