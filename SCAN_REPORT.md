@@ -12,7 +12,8 @@ committed. The history is new: no `.git` data was copied from the source reposit
 
 ## Tools
 
-- `gitleaks` and `trufflehog` are not installed on the machine, so neither ran.
+- `gitleaks` and `trufflehog` are not installed on the machine, so neither ran at the time. Both ran later; see
+  [Follow-up scan](#follow-up-scan-2026-11-01).
 - Instead, a Python secret scanner went over every text file. It checked for AWS access key ids, PEM private
   keys, GitHub, GitLab and Slack tokens, JWTs, Google API keys, LambdaTest-style keys, credentials embedded in
   URLs, `password/secret/token/api_key = "..."` assignments, and high-entropy strings (32 or more
@@ -86,6 +87,18 @@ hit was a code identifier, a path or a build setting.
 
 The full scan ran again after project lessons were added and long lines were wrapped, with the same
 results.
+
+## Follow-up scan (2026-11-01)
+
+`gitleaks` v8.30.1 and `trufflehog` v3.99.7 ran over the full git history (all three commits on `main`) and over
+the working tree. `trufflehog` ran with `--no-verification`, so nothing it matched was sent to an outside service.
+
+| Tool | Hit | Why it stays |
+| --- | --- | --- |
+| `gitleaks` (`generic-api-key`) | The placeholder test-case key `PROJ-TC-23586` (after `key=`) in `test/src/ci_report/it_test_result_test.dart` | Not a credential. Listed in `.gitleaksignore`. |
+| `trufflehog` (URI) | The URL with a `PRIVATE_AUTH_TOKEN` password in `test/src/lt_ios_runner_test.dart` | The redaction placeholder listed under Remaining hits. |
+
+No other findings. The commits' author e-mail is a personal address, not the work address assumed under Not covered.
 
 ## Not covered
 
