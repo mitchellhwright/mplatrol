@@ -30,6 +30,8 @@ jobs:
           distribution: temurin
           java-version: '17'
       - run: dart pub get
+      # patrol_bundle_template_test.dart (macOS only) uses the globally activated patrol_cli's bundler.
+      - run: dart pub global activate patrol_cli 4.8.0
       - run: dart format --output=none --set-exit-if-changed lib test bin
       - run: dart analyze --fatal-infos
       - run: dart test
